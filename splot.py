@@ -2,21 +2,84 @@ import numpy as np
 import csv
 import tkinter as tk
 from tkinter import filedialog
+from tkinter import ttk
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import matplotlib.pyplot as plt
 
+
+def preview_load_popup(data):
+    def close_popup():
+        nonlocal delimiter, channel
+        delimiter = delimiter_entry.get("1.0", tk.END).strip()
+        try:
+            channel = int(channel_entry.get("1.0", tk.END).strip())
+        except ValueError:
+            channel = 0
+        popup.destroy()
+        root.focus_set()
+
+    popup = tk.Toplevel(root)
+    popup.wm_title("Konfiguracja wczytywanych danych")
+    popup.geometry("400x400")
+    popup.resizable(False, False)
+    popup.grid_rowconfigure(0, weight=1)
+    popup.grid_rowconfigure(1, weight=1)
+    popup.grid_rowconfigure(2, weight=1)
+    popup.grid_rowconfigure(3, weight=1)
+    popup.grid_rowconfigure(4, weight=1)
+    popup.grid_rowconfigure(5, weight=1)
+    popup.grid_rowconfigure(6, weight=1)
+    popup.grid_rowconfigure(7, weight=1)
+    popup.grid_rowconfigure(8, weight=1)
+    popup.grid_rowconfigure(9, weight=1)
+    popup.grid_rowconfigure(10, weight=1)
+    popup.grid_columnconfigure(0, weight=1)
+    popup.grid_columnconfigure(1, weight=1)
+
+    tk.Label(popup, text="Dane do wczytania:").grid(row=0, column=0, columnspan=2, padx=10, pady=10)
+
+    for i in range(5):
+        row = next(data)
+        tk.Label(popup, text=row).grid(row=i+1, column=0, columnspan=2, padx=10, pady=2)
+
+    tk.Label(popup, text="...").grid(row=6, column=0, columnspan=2, padx=10, pady=2)
+
+    ttk.Separator(popup, orient=tk.HORIZONTAL, style='TSeparator').grid(row=7, column=0, columnspan=2, padx=10, pady=10, sticky='ew')
+
+    tk.Label(popup, text="Znak podziału danych w wierszu:").grid(row=8, column=0, padx=10, pady=10)
+    delimiter = ";"
+    delimiter_entry = tk.Text(popup, height=1, width=5)
+    delimiter_entry.insert(tk.END, delimiter)
+    delimiter_entry.grid(row=8, column=1, padx=10, pady=10)
+    
+    tk.Label(popup, text="Wybrany kanał sygnału:").grid(row=9, column=0, padx=10, pady=10)
+    channel = "0"
+    channel_entry = tk.Text(popup, height=1, width=5)
+    channel_entry.insert(tk.END, channel)
+    channel_entry.grid(row=9, column=1, padx=10, pady=10)
+
+    tk.Button(popup, text="Potwierdź", command=close_popup).grid(row=10, column=0, columnspan=2, padx=10, pady=10)
+
+    root.wait_window(popup)
+    return delimiter, channel
 
 def load_data(first_plot_data):
     global data1, data2, data_changed
     file_name = filedialog.askopenfilename()
     if not file_name:
         return
+    
+    delimiter = ';'
+    channel = 0
+    with open(file_name, 'r') as file:
+        loaded_data = csv.reader(file)
+        delimiter, channel = preview_load_popup(loaded_data)
 
     with open(file_name, 'r') as file:
-        file = csv.reader(file)
+        loaded_data = csv.reader(file, delimiter=delimiter)
         data = []
-        for row in file:
-            data.append(row[0])
+        for row in loaded_data:
+            data.append(float(row[channel]))
     data_changed = True
     if first_plot_data:
         data1 = np.array(data, dtype=float)
