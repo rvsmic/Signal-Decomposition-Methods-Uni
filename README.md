@@ -22,6 +22,7 @@
 ### Uruchomienie programu:
 ```bash
 git clone https://github.com/rvsmic/Signal-Decomposition-Methods-Uni
+cd Signal-Decomposition-Methods-Uni
 pip install -r requirements.txt
 python splot.py
 ```
