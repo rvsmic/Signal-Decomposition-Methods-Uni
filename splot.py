@@ -1,4 +1,3 @@
-import numpy as np
 import csv
 import tkinter as tk
 from tkinter import filedialog
@@ -82,9 +81,9 @@ def load_data(first_plot_data):
             data.append(float(row[channel]))
     data_changed = True
     if first_plot_data:
-        data1 = np.array(data, dtype=float)
+        data1 = data
     else:
-        data2 = np.array(data, dtype=float)
+        data2 = data
 
 def save_data():
     global result
@@ -147,6 +146,16 @@ def quit():
         root.after_cancel(last_loop)
     root.quit()
     root.destroy()
+    
+def convolution(data1, data2):
+    result = []
+    for i in range(len(data1) + len(data2) - 1):
+        value = 0
+        for j in range(len(data1)):
+            if i - j >= 0 and i - j < len(data2):
+                value += data1[j] * data2[i - j]
+        result.append(value)
+    return result
 
 def logic_loop():
     global data1, data2, result, data_changed, data_loaded, last_loop
@@ -159,7 +168,7 @@ def logic_loop():
             widget.destroy()
         if len(data1) and len(data2):
             file_menu.entryconfig("Zapisz wynik", state='active')
-            result = np.convolve(data1, data2, mode='full')
+            result = convolution(data1, data2)
         fig = prepare_plot(data1, data2, result)
         plot_data(fig)
     last_loop = root.after(100, logic_loop)

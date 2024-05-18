@@ -15,7 +15,6 @@
 ### Wymagane biblioteki:
 
 - csv
-- numpy
 - matplotlib
 - tkinter
 
